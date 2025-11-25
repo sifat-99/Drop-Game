@@ -51,7 +51,7 @@ def main():
         game_duration = 60
     else:  # hard
         speed_multiplier = 1.3
-        spawn_rate = 45
+        spawn_rate = 20
         game_duration = 60
 
     running = True
@@ -127,8 +127,12 @@ def main():
                     )
 
                 # Typing Logic
-                pressed_key = pygame.key.name(event.key).upper()
-                if 'A' <= pressed_key <= 'Z' and len(pressed_key) == 1:
+                if event.unicode:
+                    pressed_key = event.unicode.upper()
+                else:
+                    pressed_key = ""
+
+                if 'A' <= pressed_key <= 'Z':
                     found = False
                     for letter in letters[:]:
                         if letter.char == pressed_key:
@@ -141,6 +145,24 @@ def main():
                             points = 10 * (1 + combo * 0.1)
                             total_score += int(points)
 
+                            # Hard Mode Burst Spawn
+                            if difficulty == "hard" and combo > 0 and combo % 5 == 0:
+                                for _ in range(3):
+                                    letters.append(FallingLetter(speed_multiplier))
+                                floating_texts.append(
+                                    FloatingText("BURST!", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100,
+                                               DANGER_RED, font)
+                                )
+
+                            # Bonus time for 10 combo
+                            if combo > 0 and combo % 10 == 0:
+                                game_duration += 5
+                                sound_manager.play('powerup')
+                                floating_texts.append(
+                                    FloatingText("BONUS TIME +5s", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50,
+                                               VIBRANT_GOLD, font)
+                                )
+
                             # Visual feedback
                             combo_display_scale = 1.5
                             floating_texts.append(
@@ -149,7 +171,7 @@ def main():
                             )
 
                             # Audio feedback
-                            sound_manager.play('correct')
+                            sound_manager.play(f'letter_{pressed_key}')
 
                             # Particle explosion
                             for _ in range(15):

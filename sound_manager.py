@@ -21,6 +21,17 @@ class SoundManager:
             except:
                 print("Could not load correct.mp3")
 
+        # Load letter sounds
+        import string
+        for letter in string.ascii_uppercase:
+            path = os.path.join(ASSETS_DIR, f'{letter}.wav')
+            if os.path.exists(path):
+                try:
+                    self.sounds[f'letter_{letter}'] = pygame.mixer.Sound(path)
+                    self.sounds[f'letter_{letter}'].set_volume(0.6)
+                except:
+                    print(f"Could not load {letter}.wav")
+
     def generate_synthetic_sounds(self):
         # Generate fallback sounds if assets missing or for other effects
         if 'correct' not in self.sounds:
